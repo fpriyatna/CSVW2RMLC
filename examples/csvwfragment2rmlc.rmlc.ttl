@@ -1,0 +1,34 @@
+
+
+rml:logicalSource [
+    rml:source "http://www.example.com/Airport.csv" ;
+    rml:referenceFormulation ql:CSV 
+    csvw:rowTitles [name1,name2,name3];
+  ];
+
+
+
+rr:predicateObjectMap[
+    rr:predicate predicate;
+    rr:objectMap [
+      csvw:datatype [
+      	csvw:base
+      	csvw:format [
+      		csvw:groupChar
+      		csvw:decimalChar
+      		csvw:pattern
+      	];
+      	csvw:length
+      	csvw:maxExclusive
+      	csvw:maxInclusive
+      	csvw:maxLength
+      	csvw:maxInclusive
+      	csvw:minExclusive
+      	csvw:minInclusive
+      	csvw:minLength
+      	csvw:minInclusive
+      ];
+      csvw:valueUrl sqlExpresion;
+      csvw:required boolean;
+    ];
+];

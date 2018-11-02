@@ -13,3 +13,4 @@ buildNumber.properties
 .idea/
 venv/
 csvw2rmlc.log
+.DS_Store
