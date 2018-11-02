@@ -21,20 +21,12 @@ def result():
 
 
 def transform_csvw_to_rmlc(csvw_url):
-        rmlc_url = csvw_url
         tg = csvw.TableGroup.from_file(csvw_url)
         logging.info('tg : %s', tg)
         logical_source = generate_logical_source(tg)
-
-
-        tg_tables = tg.tables
-        logging.info('tg_tables = %s', tg_tables)
         table_schema = tg.tableSchema
-        logging.info('table_schema = %s', table_schema)
         columns = table_schema.columns
         predicate_object_maps = generate_predicate_object_maps(columns)
-
-        logging.info('columns = %s', columns)
         rmlc = '<TriplesMap>\n'
         rmlc = rmlc + logical_source + '\n'
         rmlc = rmlc + predicate_object_maps + '\n'
@@ -60,7 +52,7 @@ def generate_predicate_object_maps(columns):
         predicate_object_map = predicate_object_map + '\t\trr:objectMap [\n'
         column_name = column.name
         predicate_object_map = predicate_object_map + '\t\t\t rr:reference "' + column_name + '";\n'
-        predicate_object_map = predicate_object_map + '\t\t]\n'
+        predicate_object_map = predicate_object_map + '\t\t];\n\n'
         predicate_object_maps = predicate_object_maps + predicate_object_map
     return predicate_object_maps
 
