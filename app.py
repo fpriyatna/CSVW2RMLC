@@ -34,6 +34,7 @@ def transform_csvw_to_rmlc(csvw_url):
         logging.info('rmlc = \n%s', rmlc)
         return rmlc
 
+
 def generate_logical_source(tg):
     tg_url = tg.url
     logical_source = '\trml:logicalSource[\n'
@@ -42,6 +43,7 @@ def generate_logical_source(tg):
     logical_source = logical_source + '\t];\n'
     logging.info('logical_source = %s', logical_source)
     return logical_source
+
 
 def generate_predicate_object_maps(columns):
     predicate_object_maps = ''
