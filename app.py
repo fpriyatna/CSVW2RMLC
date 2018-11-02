@@ -55,7 +55,8 @@ def generate_predicate_object_maps(columns):
     predicate_object_maps = ''
     for column in columns:
         predicate_object_map = '\trr:predicateObjectMap [\n'
-        predicate_object_map = predicate_object_map + '\t\trr:predicate SOMETHING ;\n'
+        property_url = str(column.propertyUrl)
+        predicate_object_map = predicate_object_map + '\t\trr:predicate ' + property_url + ';\n'
         predicate_object_map = predicate_object_map + '\t\trr:objectMap [\n'
         column_name = column.name
         predicate_object_map = predicate_object_map + '\t\t\t rr:reference "' + column_name + '";\n'
