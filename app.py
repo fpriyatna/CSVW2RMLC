@@ -75,6 +75,12 @@ def generate_predicate_object_maps(columns):
             predicate_object_map = predicate_object_map + '\t\trr:objectMap [\n'
             column_name = column['name']
             predicate_object_map = predicate_object_map + '\t\t\t rr:reference "' + column_name + '";\n'
+            if 'datatype' in column:
+                datatype = column['datatype']
+                if 'base' in datatype:
+                    predicate_object_map = predicate_object_map + '\t\t\t rr:datatype "' + datatype['base'] + '";\n'
+                else:
+                    predicate_object_map = predicate_object_map + '\t\t\t rr:datatype "' + column['datatype'] + '";\n'
             predicate_object_map = predicate_object_map + '\t\t];\n\n'
             predicate_object_maps = predicate_object_maps + predicate_object_map
     return predicate_object_maps
