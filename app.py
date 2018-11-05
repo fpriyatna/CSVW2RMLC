@@ -44,7 +44,9 @@ def generate_triples_map(json_data):
     table_schema = json_data['tableSchema']
     columns = table_schema['columns']
     predicate_object_maps = generate_predicate_object_maps(columns)
-    triples_map = '<TriplesMap>\n'
+    url = json_data['url']
+    filename,extension = url.split(".")
+    triples_map = '<TriplesMap' + filename + '>\n'
     triples_map = triples_map + logical_source + '\n'
     triples_map = triples_map + predicate_object_maps + '\n'
     triples_map = triples_map + '.\n'
