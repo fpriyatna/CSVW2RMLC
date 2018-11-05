@@ -29,10 +29,10 @@ def transform_csvw_to_rmlc(csvw_url):
     if 'tables' in json_data:
         for table in json_data['tables']:
             triples_map = generate_triples_map(table)
-            rmlc = rmlc + triples_map + '.\n'
+            rmlc = rmlc + triples_map + '\n'
     else:
         triples_map = generate_triples_map(json_data)
-        rmlc = rmlc + triples_map + '.\n'
+        rmlc = rmlc + triples_map + '\n'
         return rmlc
 
     logging.info('rmlc = \n%s', rmlc)
@@ -49,6 +49,9 @@ def generate_triples_map(json_data):
     triples_map = '<TriplesMap' + filename + '>\n'
     triples_map = triples_map + logical_source + '\n'
     triples_map = triples_map + predicate_object_maps + '\n'
+    if 'foreignKeys' in table_schema:
+        ref_object_map = generate_ref_object_map(table_schema['foreignKeys'])
+        triples_map = triples_map + ref_object_map + '\n'
     triples_map = triples_map + '.\n'
     logging.info('triples_map = \n%s', triples_map)
     return triples_map
@@ -81,9 +84,33 @@ def generate_predicate_object_maps(columns):
                     predicate_object_map = predicate_object_map + '\t\t\t rr:datatype "' + datatype['base'] + '";\n'
                 else:
                     predicate_object_map = predicate_object_map + '\t\t\t rr:datatype "' + column['datatype'] + '";\n'
-            predicate_object_map = predicate_object_map + '\t\t];\n\n'
+            predicate_object_map = predicate_object_map + '\t\t];\n'
+            predicate_object_map = predicate_object_map + '\t];\n'
             predicate_object_maps = predicate_object_maps + predicate_object_map
     return predicate_object_maps
+
+
+def generate_ref_object_map(foreign_keys):
+    ref_object_map = ''
+    ref_object_map = ref_object_map + '\trr:predicateObjectMap [\n'
+    ref_object_map = ref_object_map + '\t\trr:predicate ex:hasSomething;\n'
+    ref_object_map = ref_object_map + '\t\trr:objectMap [\n'
+    for foreignKey in foreign_keys:
+        column_reference = foreignKey['columnReference']
+        logging.info('column_reference = %s', column_reference)
+        reference = foreignKey['reference']
+        reference_resource = reference['resource']
+        logging.info('reference_resource = %s', reference_resource)
+        reference_column_reference = reference['columnReference']
+        logging.info('reference_column_reference = %s', reference_column_reference)
+        ref_object_map = ref_object_map + '\t\t\trr:parentTriplesMap ' + reference_resource + ';\n'
+        ref_object_map = ref_object_map + '\t\t\trr:joinCondition [\n'
+        ref_object_map = ref_object_map + '\t\t\t\trr:child "' + column_reference + '";\n'
+        ref_object_map = ref_object_map + '\t\t\t\trr:parent "' + reference_column_reference + '";\n'
+        ref_object_map = ref_object_map + '\t\t\t];\n'
+    ref_object_map = ref_object_map + '\t\t];\n'
+    ref_object_map = ref_object_map + '\t];\n'
+    return ref_object_map
 
 
 if __name__ == '__main__':
