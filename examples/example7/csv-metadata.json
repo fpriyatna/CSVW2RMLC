@@ -4,14 +4,14 @@
   ],
   "tables": [
     {
-      "url": "https://raw.githubusercontent.com/fpriyatna/CSVW2RMLC/master/examples/example7/personas.csv",
+      "url": "https://raw.githubusercontent.com/oeg-upm/mapping-translator/master/examples/example7/personas.csv",
       "tableSchema": {
         "aboutUrl": "http://example.org/Person/{id}",
         "columns": [
           {
-            "name": "id",
-            "titles": "Identifier",
-            "propertyUrl": "schema:identifier"
+            "virtual": "true",
+            "propertyUrl": "rdf:type",
+            "valueUrl": "schema:Person"
           },
           {
             "name": "nombre",
@@ -44,14 +44,14 @@
       }
     },
     {
-      "url": "https://raw.githubusercontent.com/fpriyatna/CSVW2RMLC/master/examples/example7/comentarios.csv",
+      "url": "https://raw.githubusercontent.com/oeg-upm/mapping-translator/master/examples/example7/comentarios.csv",
       "tableSchema": {
         "aboutUrl": "http://example.org/SocialMediaPosting/{id}",
         "columns": [
           {
-            "name": "id",
-            "titles": "Identifier",
-            "propertyUrl": "schema:identifier"
+            "virtual": "true",
+            "propertyUrl": "rdf:type",
+            "valueUrl": "schema:SocialMediaPosting"
           },
           {
             "name": "mensaje",
@@ -63,7 +63,7 @@
           {
             "columnReference": "usuario",
             "reference": {
-              "resource": "https://raw.githubusercontent.com/fpriyatna/CSVW2RMLC/master/examples/example7/personas.csv",
+              "resource": "https://raw.githubusercontent.com/oeg-upm/mapping-translator/master/examples/example7/personas.csv",
               "columnReference": "lower(substr({nombre},1,1) || {apellido})"
             }
           }
