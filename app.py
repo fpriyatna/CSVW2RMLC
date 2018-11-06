@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import csvw
 import logging
 import json
+import re
 
 app = Flask(__name__)
 logging.basicConfig(filename='csvw2rmlc.log', level=logging.DEBUG)
@@ -24,7 +25,7 @@ def transform_csvw_to_rmlc(csvw_url):
     #tg = csvw.TableGroup.from_file(csvw_url)
     #logging.info('tg : %s', tg)
     json_data = json.loads(open(csvw_url).read())
-    logging.info('json_data = \n%s', json_data)
+    #logging.info('json_data = \n%s', json_data)
     rmlc = ''
     if 'tables' in json_data:
         for table in json_data['tables']:
@@ -45,16 +46,29 @@ def generate_triples_map(json_data):
     columns = table_schema['columns']
     predicate_object_maps = generate_predicate_object_maps(columns)
     url = json_data['url']
-    filename,extension = url.split(".")
+    filename, extension = url.split(".")
     triples_map = '<TriplesMap' + filename + '>\n'
     triples_map = triples_map + logical_source + '\n'
+    if 'aboutUrl' in table_schema:
+        about_url = table_schema['aboutUrl']
+        subject_map = generate_subject_map(about_url)
+        triples_map = triples_map + subject_map + '\n'
     triples_map = triples_map + predicate_object_maps + '\n'
     if 'foreignKeys' in table_schema:
         ref_object_map = generate_ref_object_map(table_schema['foreignKeys'])
         triples_map = triples_map + ref_object_map + '\n'
     triples_map = triples_map + '.\n'
-    logging.info('triples_map = \n%s', triples_map)
+    #logging.info('triples_map = \n%s', triples_map)
     return triples_map
+
+
+def generate_subject_map(about_url):
+    about_url = re.sub('{#', '{', about_url)
+    subject_map = ''
+    subject_map = subject_map + '\trr:subjectMap [\n'
+    subject_map = subject_map + '\t\trr:template "' + str(about_url) + '"\n'
+    subject_map = subject_map + '\t];\n'
+    return subject_map
 
 
 def generate_logical_source(json_data):
@@ -64,7 +78,7 @@ def generate_logical_source(json_data):
     logical_source = logical_source + '\t\trml:source'
     logical_source = logical_source + ' "' + json_data['url'] + '";\n'
     logical_source = logical_source + '\t];\n'
-    logging.info('logical_source = %s', logical_source)
+    #logging.info('logical_source = %s', logical_source)
     return logical_source
 
 
@@ -74,6 +88,7 @@ def generate_predicate_object_maps(columns):
         if 'propertyUrl' in column:
             predicate_object_map = '\trr:predicateObjectMap [\n'
             property_url = str(column['propertyUrl'])
+            property_url = re.sub('{#_', '{', property_url)
             predicate_object_map = predicate_object_map + '\t\trr:predicate ' + property_url + ';\n'
             predicate_object_map = predicate_object_map + '\t\trr:objectMap [\n'
             column_name = column['name']
