@@ -38,14 +38,15 @@ def transform_csvw_to_rmlc(csvw_url):
     rmlc = rmlc + '@prefix schema: <http://schema.org/>.' + '\n'
     rmlc = rmlc + '\n'
 
+    tables = []
     if 'tables' in json_data:
-        for table in json_data['tables']:
-            triples_map = generate_triples_map(table)
-            rmlc = rmlc + triples_map + '\n'
+        tables = json_data['tables']
     else:
-        triples_map = generate_triples_map(json_data)
+        tables.append(json_data)
+
+    for table in tables:
+        triples_map = generate_triples_map(table, json_data)
         rmlc = rmlc + triples_map + '\n'
-        return rmlc
 
     logging.info('rmlc = \n%s', rmlc)
     print rmlc
@@ -58,10 +59,10 @@ def get_filename_with_extension(url):
     return filename_with_extension
 
 
-def generate_triples_map(json_data):
-    logical_source = generate_logical_source(json_data)
-    table_schema = json_data['tableSchema']
-    url = json_data['url']
+def generate_triples_map(table, json_data):
+    logical_source = generate_logical_source(table)
+    table_schema = table['tableSchema']
+    url = table['url']
     # filename, extension = url.split(".")
     filename_with_extension = get_filename_with_extension(url)
     filename, extension = filename_with_extension.split(".")
@@ -76,7 +77,7 @@ def generate_triples_map(json_data):
     predicate_object_maps = generate_predicate_object_maps(columns)
     triples_map = triples_map + predicate_object_maps + '\n'
     if 'foreignKeys' in table_schema:
-        ref_object_map = generate_ref_object_map(table_schema['foreignKeys'])
+        ref_object_map = generate_ref_object_map(table_schema['foreignKeys'], json_data)
         triples_map = triples_map + ref_object_map + '\n'
     triples_map = triples_map + '.\n'
     # logging.info('triples_map = \n%s', triples_map)
@@ -88,19 +89,20 @@ def generate_subject_map(about_url, classes):
     subject_map = ''
     subject_map = subject_map + '\trr:subjectMap [\n'
     subject_map = subject_map + '\t\trr:template "' + str(about_url) + '";\n'
-    subject_map = subject_map + '\t\trr:class ' + classes[0] + '\n'
+    if len(classes) > 0:
+        subject_map = subject_map + '\t\trr:class ' + classes[0] + '\n'
     subject_map = subject_map + '\t];\n'
     return subject_map
 
 
 def generate_logical_source(json_data):
     url = json_data['url']
-    logging.info('url = %s', url)
+    # logging.info('url = %s', url)
     logical_source = '\trml:logicalSource [\n'
     logical_source = logical_source + '\t\trml:source'
     logical_source = logical_source + ' "' + json_data['url'] + '";\n'
     logical_source = logical_source + '\t];\n'
-    #logging.info('logical_source = %s', logical_source)
+    # logging.info('logical_source = %s', logical_source)
     return logical_source
 
 
@@ -124,6 +126,8 @@ def generate_predicate_map(column):
     predicate_map = ''
     property_url = str(column['propertyUrl'])
     property_url = re.sub('{#_', '{', property_url)
+    if '//' in property_url:
+        property_url = '<' + property_url + '>'
     predicate_map = predicate_map + '\t\trr:predicate ' + property_url + ';\n'
     return predicate_map
 
@@ -148,19 +152,29 @@ def generate_object_map(column):
     return object_map
 
 
-def generate_ref_object_map(foreign_keys):
+def generate_ref_object_map(foreign_keys, json_data):
     ref_object_map = ''
-    ref_object_map = ref_object_map + '\trr:predicateObjectMap [\n'
-    ref_object_map = ref_object_map + '\t\trr:predicate ex:hasSomething;\n'
-    ref_object_map = ref_object_map + '\t\trr:objectMap [\n'
     for foreignKey in foreign_keys:
         column_reference = foreignKey['columnReference']
-        logging.info('column_reference = %s', column_reference)
+        # logging.info('column_reference = %s', column_reference)
         reference = foreignKey['reference']
         reference_resource = reference['resource']
-        logging.info('reference_resource = %s', reference_resource)
+        # logging.info('reference_resource = %s', reference_resource)
+
+        parent_class = 'ex:hasSomething'
+        class_by_url = get_class_by_url(json_data, reference_resource)
+        logging.info('class_by_url = %s', class_by_url)
+        if class_by_url:
+            prefix, classname = class_by_url.split(":")
+            classname_camelcase = to_camel_case(classname)
+            parent_class = prefix + ':' + classname_camelcase
+
+        ref_object_map = ref_object_map + '\trr:predicateObjectMap [\n'
+        ref_object_map = ref_object_map + '\t\trr:predicate ' + parent_class + ';\n'
+        ref_object_map = ref_object_map + '\t\trr:objectMap [\n'
+
         reference_column_reference = reference['columnReference']
-        logging.info('reference_column_reference = %s', reference_column_reference)
+        # logging.info('reference_column_reference = %s', reference_column_reference)
         # filename, extension = reference_resource.split(".")
         filename_with_extension = get_filename_with_extension(reference_resource)
         filename, extension = filename_with_extension.split(".")
@@ -185,6 +199,38 @@ def get_classes(table_schema):
                 value_url = column['valueUrl']
                 classes.append(value_url)
     return classes
+
+
+def get_table_schemas_by_url(json_data, input_url):
+    table_schemas = []
+    if 'tables' in json_data:
+        for table in json_data['tables']:
+            url = table['url']
+            if url == input_url:
+                table_schema = table['tableSchema']
+                table_schemas.append(table_schema)
+    else:
+        url = json_data['url']
+        if url == input_url:
+            table_schema = json_data['tableSchema']
+            table_schemas.append(table_schema)
+
+    return table_schemas
+
+
+def get_class_by_url(json_data, input_url):
+    tables_schemas = get_table_schemas_by_url(json_data, input_url)
+    table_schema = tables_schemas[0]
+    classes = get_classes(table_schema)
+    class_by_url = None
+    if len(classes) > 0:
+        class_by_url = classes[0]
+    return class_by_url
+
+
+def to_camel_case(st):
+    output = ''.join(x for x in st.title() if x.isalnum())
+    return output[0].lower() + output[1:]
 
 
 if __name__ == '__main__':
