@@ -8,74 +8,78 @@
 @prefix schema: <http://schema.org/>.
 
 <personas>
-        rml:logicalSource [
-                rml:source "https://raw.githubusercontent.com/oeg-upm/mapping-translator/master/examples/example7/personas.csv";
-        ];
+    rml:logicalSource [
+        rml:source "https://raw.githubusercontent.com/oeg-upm/mapping-translator/master/examples/example7/personas.csv";
+    ];
 
-        rr:subjectMap [
-                rr:template "http://example.org/Person/{id}";
-                rr:class schema:Person
-        ];
+    rr:subjectMap [
+        rr:template "http://example.org/Person/{id}";
+        rr:class schema:Person
+    ];
 
-        rr:predicateObjectMap [
-                rr:predicate schema:givenName;
-                rr:objectMap [
-                         rml:reference "nombre";
-                ];
+    rr:predicateObjectMap [
+        rr:predicate schema:givenName;
+        rr:objectMap [
+             rml:reference "nombre";
         ];
-        rr:predicateObjectMap [
-                rr:predicate schema:familyName;
-                rr:objectMap [
-                         rml:reference "apellido";
-                ];
+    ];
+    rr:predicateObjectMap [
+        rr:predicate schema:familyName;
+        rr:objectMap [
+             rml:reference "apellido";
         ];
-        rr:predicateObjectMap [
-                rr:predicate schema:telephone;
-                rr:objectMap [
-                         rml:reference "telephone";
-                ];
+    ];
+    rr:predicateObjectMap [
+        rr:predicate schema:telephone;
+        rr:objectMap [
+             rml:reference "telephone";
         ];
-        rr:predicateObjectMap [
-                rr:predicate schema:name;
-                rr:objectMap [
-                         rr:template "{nombre} {apellido}";
-                ];
+    ];
+    rr:predicateObjectMap [
+        rr:predicate schema:name;
+        rr:objectMap [
+             rmlc:function "{nombre} || ' ' || {apellido}";
         ];
-        rr:predicateObjectMap [
-                rr:predicate schema:email;
-                rr:objectMap [
-                         rr:template "lower(substr({nombre},1,1) || {apellido} || '@fi.upm.es')";
-                ];
+    ];
+    rr:predicateObjectMap [
+        rr:predicate schema:email;
+        rr:objectMap [
+             rmlc:function "lower(substr({nombre},1,1) || {apellido} || '@fi.upm.es')";
         ];
+    ];
 
 .
 
 <comentarios>
-        rml:logicalSource [
-                rml:source "https://raw.githubusercontent.com/oeg-upm/mapping-translator/master/examples/example7/comentarios.csv";
-        ];
+    rml:logicalSource [
+        rml:source "https://raw.githubusercontent.com/oeg-upm/mapping-translator/master/examples/example7/comentarios.csv";
+    ];
 
-        rr:subjectMap [
-                rr:template "http://example.org/SocialMediaPosting/{id}";
-                rr:class schema:SocialMediaPosting
-        ];
+    rr:subjectMap [
+        rr:template "http://example.org/SocialMediaPosting/{id}";
+        rr:class schema:SocialMediaPosting
+    ];
 
-        rr:predicateObjectMap [
-                rr:predicate schema:comment;
-                rr:objectMap [
-                         rml:reference "mensaje";
+    rr:predicateObjectMap [
+        rr:predicate schema:comment;
+        rr:objectMap [
+             rml:reference "mensaje";
+        ];
+    ];
+
+    rr:predicateObjectMap [
+        rr:predicate schema:person;
+        rr:objectMap [
+            rr:parentTriplesMap <personas>;
+            rr:joinCondition [
+                rmlc:child [
+                    rml:reference "usuario";
                 ];
-        ];
-
-        rr:predicateObjectMap [
-                rr:predicate schema:person;
-                rr:objectMap [
-                        rr:parentTriplesMap <personas>;
-                        rr:joinCondition [
-                                rr:child "usuario";
-                                rr:parent "lower(substr({nombre},1,1) || {apellido})";
-                        ];
+                rmlc:parent [
+                    rmlc:function "lower(substr({nombre},1,1) || {apellido})";
                 ];
+            ];
         ];
+    ];
 
 .
