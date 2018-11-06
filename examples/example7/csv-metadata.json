@@ -1,0 +1,74 @@
+{
+  "@context": [
+    "http://www.w3.org/ns/csvw"
+  ],
+  "tables": [
+    {
+      "url": "personas.csv",
+      "tableSchema": {
+        "aboutUrl": "http://example.org/Person/{id}",
+        "columns": [
+          {
+            "name": "id",
+            "titles": "Identifier",
+            "propertyUrl": "schema:identifier"
+          },
+          {
+            "name": "nombre",
+            "titles": "First Name",
+            "propertyUrl": "schema:givenName"
+          },
+          {
+            "name": "apellido",
+            "titles": "Last Name",
+            "propertyUrl": "schema:familyName"
+          },
+          {
+            "name": "telephone",
+            "titles": "Telephone",
+            "propertyUrl": "schema:telephone"
+          },
+          {
+            "virtual": "true",
+            "titles": "Full Name",
+            "propertyUrl": "schema:name",
+            "valueUrl": "{nombre} {apellido}"
+          },
+          {
+            "virtual": "true",
+            "titles": "Email",
+            "propertyUrl": "schema:email",
+            "valueUrl": "lower(substr({nombre},1,1) || {apellido} || '@fi.upm.es')"
+          }
+        ]
+      }
+    },
+    {
+      "url": "comentarios.csv",
+      "tableSchema": {
+        "aboutUrl": "http://example.org/SocialMediaPosting/{id}",
+        "columns": [
+          {
+            "name": "id",
+            "titles": "Identifier",
+            "propertyUrl": "schema:identifier"
+          },
+          {
+            "name": "mensaje",
+            "titles": "Comment",
+            "propertyUrl": "schema:comment"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "columnReference": "usuario",
+            "reference": {
+              "resource": "personas.csv",
+              "columnReference": "lower(substr({nombre},1,1) || {apellido})"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -47,7 +47,7 @@ def generate_triples_map(json_data):
     predicate_object_maps = generate_predicate_object_maps(columns)
     url = json_data['url']
     filename, extension = url.split(".")
-    triples_map = '<TriplesMap' + filename + '>\n'
+    triples_map = '<' + filename + '>\n'
     triples_map = triples_map + logical_source + '\n'
     if 'aboutUrl' in table_schema:
         about_url = table_schema['aboutUrl']
@@ -137,7 +137,8 @@ def generate_ref_object_map(foreign_keys):
         logging.info('reference_resource = %s', reference_resource)
         reference_column_reference = reference['columnReference']
         logging.info('reference_column_reference = %s', reference_column_reference)
-        ref_object_map = ref_object_map + '\t\t\trr:parentTriplesMap ' + reference_resource + ';\n'
+        filename, extension = reference_resource.split(".")
+        ref_object_map = ref_object_map + '\t\t\trr:parentTriplesMap <' + filename + '>;\n'
         ref_object_map = ref_object_map + '\t\t\trr:joinCondition [\n'
         ref_object_map = ref_object_map + '\t\t\t\trr:child "' + column_reference + '";\n'
         ref_object_map = ref_object_map + '\t\t\t\trr:parent "' + reference_column_reference + '";\n'
