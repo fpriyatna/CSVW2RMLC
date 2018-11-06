@@ -103,11 +103,17 @@ def generate_predicate_map(column):
     predicate_map = predicate_map + '\t\trr:predicate ' + property_url + ';\n'
     return predicate_map
 
+
 def generate_object_map(column):
     object_map = ''
     object_map = object_map + '\t\trr:objectMap [\n'
-    column_name = column['name']
-    object_map = object_map + '\t\t\t rr:reference "' + column_name + '";\n'
+    if 'valueUrl' in column:
+        value_url = column['valueUrl']
+        object_map = object_map + '\t\t\t rr:template "' + value_url + '";\n'
+    else:
+        column_name = column['name']
+        object_map = object_map + '\t\t\t rml:reference "' + column_name + '";\n'
+
     if 'datatype' in column:
         datatype = column['datatype']
         if 'base' in datatype:
