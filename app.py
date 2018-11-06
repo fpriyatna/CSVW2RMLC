@@ -28,6 +28,16 @@ def transform_csvw_to_rmlc(csvw_url):
     json_data = json.loads(open(csvw_url).read())
     # logging.info('json_data = \n%s', json_data)
     rmlc = ''
+    rmlc = rmlc + '@prefix rr: <http://www.w3.org/ns/r2rml#>.' + '\n'
+    rmlc = rmlc + '@prefix rml: <http://semweb.mmlab.be/ns/rml#> .' + '\n'
+    rmlc = rmlc + '@prefix rmlc: <http://www.oeg-upm.net/ns/rmlc#> .' + '\n'
+    rmlc = rmlc + '@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.' + '\n'
+    rmlc = rmlc + '@prefix ex: <http://www.example.com/> .' + '\n'
+    rmlc = rmlc + '@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .' + '\n'
+    rmlc = rmlc + '@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.' + '\n'
+    rmlc = rmlc + '@prefix schema: <http://schema.org/>.' + '\n'
+    rmlc = rmlc + '\n'
+
     if 'tables' in json_data:
         for table in json_data['tables']:
             triples_map = generate_triples_map(table)
@@ -38,6 +48,7 @@ def transform_csvw_to_rmlc(csvw_url):
         return rmlc
 
     logging.info('rmlc = \n%s', rmlc)
+    print rmlc
     return rmlc
 
 
@@ -45,6 +56,7 @@ def get_filename_with_extension(url):
     parsed_url = urlparse.urlparse(url)
     filename_with_extension = os.path.basename(parsed_url.path)
     return filename_with_extension
+
 
 def generate_triples_map(json_data):
     logical_source = generate_logical_source(json_data)
