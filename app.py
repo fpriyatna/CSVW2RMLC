@@ -108,13 +108,15 @@ def generate_predicate_object_maps(columns):
     predicate_object_maps = ''
     for column in columns:
         if 'propertyUrl' in column:
-            predicate_object_map = '\trr:predicateObjectMap [\n'
-            predicate_map = generate_predicate_map(column)
-            predicate_object_map = predicate_object_map + predicate_map
-            object_map = generate_object_map(column)
-            predicate_object_map = predicate_object_map + object_map
-            predicate_object_map = predicate_object_map + '\t];\n'
-            predicate_object_maps = predicate_object_maps + predicate_object_map
+            property_url = column['propertyUrl']
+            if not property_url == 'rdf:type':
+                predicate_object_map = '\trr:predicateObjectMap [\n'
+                predicate_map = generate_predicate_map(column)
+                predicate_object_map = predicate_object_map + predicate_map
+                object_map = generate_object_map(column)
+                predicate_object_map = predicate_object_map + object_map
+                predicate_object_map = predicate_object_map + '\t];\n'
+                predicate_object_maps = predicate_object_maps + predicate_object_map
     return predicate_object_maps
 
 
