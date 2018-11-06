@@ -87,22 +87,35 @@ def generate_predicate_object_maps(columns):
     for column in columns:
         if 'propertyUrl' in column:
             predicate_object_map = '\trr:predicateObjectMap [\n'
-            property_url = str(column['propertyUrl'])
-            property_url = re.sub('{#_', '{', property_url)
-            predicate_object_map = predicate_object_map + '\t\trr:predicate ' + property_url + ';\n'
-            predicate_object_map = predicate_object_map + '\t\trr:objectMap [\n'
-            column_name = column['name']
-            predicate_object_map = predicate_object_map + '\t\t\t rr:reference "' + column_name + '";\n'
-            if 'datatype' in column:
-                datatype = column['datatype']
-                if 'base' in datatype:
-                    predicate_object_map = predicate_object_map + '\t\t\t rr:datatype "' + datatype['base'] + '";\n'
-                else:
-                    predicate_object_map = predicate_object_map + '\t\t\t rr:datatype "' + column['datatype'] + '";\n'
-            predicate_object_map = predicate_object_map + '\t\t];\n'
+            predicate_map = generate_predicate_map(column)
+            predicate_object_map = predicate_object_map + predicate_map
+            object_map = generate_object_map(column)
+            predicate_object_map = predicate_object_map + object_map
             predicate_object_map = predicate_object_map + '\t];\n'
             predicate_object_maps = predicate_object_maps + predicate_object_map
     return predicate_object_maps
+
+
+def generate_predicate_map(column):
+    predicate_map = ''
+    property_url = str(column['propertyUrl'])
+    property_url = re.sub('{#_', '{', property_url)
+    predicate_map = predicate_map + '\t\trr:predicate ' + property_url + ';\n'
+    return predicate_map
+
+def generate_object_map(column):
+    object_map = ''
+    object_map = object_map + '\t\trr:objectMap [\n'
+    column_name = column['name']
+    object_map = object_map + '\t\t\t rr:reference "' + column_name + '";\n'
+    if 'datatype' in column:
+        datatype = column['datatype']
+        if 'base' in datatype:
+            object_map = object_map + '\t\t\t rr:datatype "' + datatype['base'] + '";\n'
+        else:
+            object_map = object_map + '\t\t\t rr:datatype "' + column['datatype'] + '";\n'
+    object_map = object_map + '\t\t];\n'
+    return object_map
 
 
 def generate_ref_object_map(foreign_keys):
