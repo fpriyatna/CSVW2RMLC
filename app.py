@@ -142,7 +142,7 @@ def generate_object_map(column):
     object_map = object_map + '\t\trr:objectMap [\n'
     if 'valueUrl' in column:
         value_url = column['valueUrl']
-        object_map = object_map + '\t\t\t rmlc:function "' + value_url + '";\n'
+        object_map = object_map + '\t\t\t rmlc:functions "' + value_url + '";\n'
     else:
         column_name = column['name']
         object_map = object_map + '\t\t\t rml:reference "' + column_name + '";\n'
@@ -190,14 +190,14 @@ def generate_ref_object_map(foreign_keys, json_data, header):
         if column_reference in header:
             ref_object_map = ref_object_map + '\t\t\t\t\trml:reference "' + column_reference + '";\n'
         else:
-            ref_object_map = ref_object_map + '\t\t\t\t\trmlc:function "' + column_reference + '";\n'
+            ref_object_map = ref_object_map + '\t\t\t\t\trmlc:functions "' + column_reference + '";\n'
 
         ref_object_map = ref_object_map + '\t\t\t\t];\n'
         ref_object_map = ref_object_map + '\t\t\t\trmlc:parent [\n'
         if reference_column_reference in reference_resource_header:
             ref_object_map = ref_object_map + '\t\t\t\t\trml:reference "' + reference_column_reference + '";\n'
         else:
-            ref_object_map = ref_object_map + '\t\t\t\t\trmlc:function "' + reference_column_reference + '";\n'
+            ref_object_map = ref_object_map + '\t\t\t\t\trmlc:functions "' + reference_column_reference + '";\n'
         ref_object_map = ref_object_map + '\t\t\t\t];\n'
         ref_object_map = ref_object_map + '\t\t\t];\n'
     ref_object_map = ref_object_map + '\t\t];\n'
