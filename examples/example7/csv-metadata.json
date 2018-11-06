@@ -4,7 +4,7 @@
   ],
   "tables": [
     {
-      "url": "personas.csv",
+      "url": "https://raw.githubusercontent.com/fpriyatna/CSVW2RMLC/master/examples/example7/personas.csv",
       "tableSchema": {
         "aboutUrl": "http://example.org/Person/{id}",
         "columns": [
@@ -44,7 +44,7 @@
       }
     },
     {
-      "url": "comentarios.csv",
+      "url": "https://raw.githubusercontent.com/fpriyatna/CSVW2RMLC/master/examples/example7/comentarios.csv",
       "tableSchema": {
         "aboutUrl": "http://example.org/SocialMediaPosting/{id}",
         "columns": [
@@ -63,7 +63,7 @@
           {
             "columnReference": "usuario",
             "reference": {
-              "resource": "personas.csv",
+              "resource": "https://raw.githubusercontent.com/fpriyatna/CSVW2RMLC/master/examples/example7/personas.csv",
               "columnReference": "lower(substr({nombre},1,1) || {apellido})"
             }
           }

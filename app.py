@@ -3,6 +3,7 @@ import csvw
 import logging
 import json
 import re
+import urlparse, os
 
 app = Flask(__name__)
 logging.basicConfig(filename='csvw2rmlc.log', level=logging.DEBUG)
@@ -22,10 +23,10 @@ def result():
 
 
 def transform_csvw_to_rmlc(csvw_url):
-    #tg = csvw.TableGroup.from_file(csvw_url)
-    #logging.info('tg : %s', tg)
+    # tg = csvw.TableGroup.from_file(csvw_url)
+    # logging.info('tg : %s', tg)
     json_data = json.loads(open(csvw_url).read())
-    #logging.info('json_data = \n%s', json_data)
+    # logging.info('json_data = \n%s', json_data)
     rmlc = ''
     if 'tables' in json_data:
         for table in json_data['tables']:
@@ -40,13 +41,20 @@ def transform_csvw_to_rmlc(csvw_url):
     return rmlc
 
 
+def get_filename_with_extension(url):
+    parsed_url = urlparse.urlparse(url)
+    filename_with_extension = os.path.basename(parsed_url.path)
+    return filename_with_extension
+
 def generate_triples_map(json_data):
     logical_source = generate_logical_source(json_data)
     table_schema = json_data['tableSchema']
     columns = table_schema['columns']
     predicate_object_maps = generate_predicate_object_maps(columns)
     url = json_data['url']
-    filename, extension = url.split(".")
+    # filename, extension = url.split(".")
+    filename_with_extension = get_filename_with_extension(url)
+    filename, extension = filename_with_extension.split(".")
     triples_map = '<' + filename + '>\n'
     triples_map = triples_map + logical_source + '\n'
     if 'aboutUrl' in table_schema:
@@ -137,7 +145,10 @@ def generate_ref_object_map(foreign_keys):
         logging.info('reference_resource = %s', reference_resource)
         reference_column_reference = reference['columnReference']
         logging.info('reference_column_reference = %s', reference_column_reference)
-        filename, extension = reference_resource.split(".")
+        # filename, extension = reference_resource.split(".")
+        filename_with_extension = get_filename_with_extension(reference_resource)
+        filename, extension = filename_with_extension.split(".")
+
         ref_object_map = ref_object_map + '\t\t\trr:parentTriplesMap <' + filename + '>;\n'
         ref_object_map = ref_object_map + '\t\t\trr:joinCondition [\n'
         ref_object_map = ref_object_map + '\t\t\t\trr:child "' + column_reference + '";\n'
