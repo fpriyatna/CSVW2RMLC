@@ -4,6 +4,10 @@ import logging
 import json
 import re
 import urlparse, os
+import csv
+import urllib2
+import pandas as pd
+
 
 app = Flask(__name__)
 logging.basicConfig(filename='csvw2rmlc.log', level=logging.DEBUG)
@@ -63,6 +67,7 @@ def generate_triples_map(table, json_data):
     logical_source = generate_logical_source(table)
     table_schema = table['tableSchema']
     url = table['url']
+    header = pd.read_csv(url, nrows=0)
     # filename, extension = url.split(".")
     filename_with_extension = get_filename_with_extension(url)
     filename, extension = filename_with_extension.split(".")
@@ -77,7 +82,7 @@ def generate_triples_map(table, json_data):
     predicate_object_maps = generate_predicate_object_maps(columns)
     triples_map = triples_map + predicate_object_maps + '\n'
     if 'foreignKeys' in table_schema:
-        ref_object_map = generate_ref_object_map(table_schema['foreignKeys'], json_data)
+        ref_object_map = generate_ref_object_map(table_schema['foreignKeys'], json_data, header)
         triples_map = triples_map + ref_object_map + '\n'
     triples_map = triples_map + '.\n'
     # logging.info('triples_map = \n%s', triples_map)
@@ -137,7 +142,7 @@ def generate_object_map(column):
     object_map = object_map + '\t\trr:objectMap [\n'
     if 'valueUrl' in column:
         value_url = column['valueUrl']
-        object_map = object_map + '\t\t\t rr:template "' + value_url + '";\n'
+        object_map = object_map + '\t\t\t rmlc:function "' + value_url + '";\n'
     else:
         column_name = column['name']
         object_map = object_map + '\t\t\t rml:reference "' + column_name + '";\n'
@@ -152,7 +157,7 @@ def generate_object_map(column):
     return object_map
 
 
-def generate_ref_object_map(foreign_keys, json_data):
+def generate_ref_object_map(foreign_keys, json_data, header):
     ref_object_map = ''
     for foreignKey in foreign_keys:
         column_reference = foreignKey['columnReference']
@@ -160,7 +165,7 @@ def generate_ref_object_map(foreign_keys, json_data):
         reference = foreignKey['reference']
         reference_resource = reference['resource']
         # logging.info('reference_resource = %s', reference_resource)
-
+        reference_resource_header = pd.read_csv(reference_resource, nrows=0)
         parent_class = 'ex:hasSomething'
         class_by_url = get_class_by_url(json_data, reference_resource)
         logging.info('class_by_url = %s', class_by_url)
@@ -181,11 +186,23 @@ def generate_ref_object_map(foreign_keys, json_data):
 
         ref_object_map = ref_object_map + '\t\t\trr:parentTriplesMap <' + filename + '>;\n'
         ref_object_map = ref_object_map + '\t\t\trr:joinCondition [\n'
-        ref_object_map = ref_object_map + '\t\t\t\trr:child "' + column_reference + '";\n'
-        ref_object_map = ref_object_map + '\t\t\t\trr:parent "' + reference_column_reference + '";\n'
+        ref_object_map = ref_object_map + '\t\t\t\trmlc:child [\n'
+        if column_reference in header:
+            ref_object_map = ref_object_map + '\t\t\t\t\trml:reference "' + column_reference + '";\n'
+        else:
+            ref_object_map = ref_object_map + '\t\t\t\t\trmlc:function "' + column_reference + '";\n'
+
+        ref_object_map = ref_object_map + '\t\t\t\t];\n'
+        ref_object_map = ref_object_map + '\t\t\t\trmlc:parent [\n'
+        if reference_column_reference in reference_resource_header:
+            ref_object_map = ref_object_map + '\t\t\t\t\trml:reference "' + reference_column_reference + '";\n'
+        else:
+            ref_object_map = ref_object_map + '\t\t\t\t\trmlc:function "' + reference_column_reference + '";\n'
+        ref_object_map = ref_object_map + '\t\t\t\t];\n'
         ref_object_map = ref_object_map + '\t\t\t];\n'
     ref_object_map = ref_object_map + '\t\t];\n'
     ref_object_map = ref_object_map + '\t];\n'
+    #print ref_object_map
     return ref_object_map
 
 

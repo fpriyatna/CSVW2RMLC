@@ -32,7 +32,7 @@
             "virtual": "true",
             "titles": "Full Name",
             "propertyUrl": "schema:name",
-            "valueUrl": "{nombre} {apellido}"
+            "valueUrl": "{nombre} || ' ' || {apellido}"
           },
           {
             "virtual": "true",
