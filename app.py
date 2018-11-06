@@ -67,9 +67,10 @@ def generate_triples_map(json_data):
     filename, extension = filename_with_extension.split(".")
     triples_map = '<' + filename + '>\n'
     triples_map = triples_map + logical_source + '\n'
+    classes = get_classes(table_schema)
     if 'aboutUrl' in table_schema:
         about_url = table_schema['aboutUrl']
-        subject_map = generate_subject_map(about_url)
+        subject_map = generate_subject_map(about_url, classes)
         triples_map = triples_map + subject_map + '\n'
     columns = table_schema['columns']
     predicate_object_maps = generate_predicate_object_maps(columns)
@@ -82,11 +83,12 @@ def generate_triples_map(json_data):
     return triples_map
 
 
-def generate_subject_map(about_url):
+def generate_subject_map(about_url, classes):
     about_url = re.sub('{#', '{', about_url)
     subject_map = ''
     subject_map = subject_map + '\trr:subjectMap [\n'
     subject_map = subject_map + '\t\trr:template "' + str(about_url) + '";\n'
+    subject_map = subject_map + '\t\trr:class ' + classes[0] + '\n'
     subject_map = subject_map + '\t];\n'
     return subject_map
 
@@ -170,7 +172,17 @@ def generate_ref_object_map(foreign_keys):
     ref_object_map = ref_object_map + '\t];\n'
     return ref_object_map
 
-# def get_class():
+
+def get_classes(table_schema):
+    classes = []
+    columns = table_schema['columns']
+    for column in columns:
+        if 'propertyUrl' in column:
+            property_url = column['propertyUrl']
+            if property_url == 'rdf:type':
+                value_url = column['valueUrl']
+                classes.append(value_url)
+    return classes
 
 
 if __name__ == '__main__':
