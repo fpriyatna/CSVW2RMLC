@@ -38,13 +38,13 @@
     rr:predicateObjectMap [
         rr:predicate schema:name;
         rr:objectMap [
-             rmlc:function "{nombre} || ' ' || {apellido}";
+             rmlc:functions "{nombre} || ' ' || {apellido}";
         ];
     ];
     rr:predicateObjectMap [
         rr:predicate schema:email;
         rr:objectMap [
-             rmlc:function "lower(substr({nombre},1,1) || {apellido} || '@fi.upm.es')";
+             rmlc:functions "lower(substr({nombre},1,1) || {apellido} || '@fi.upm.es')";
         ];
     ];
 
@@ -76,7 +76,7 @@
                     rml:reference "usuario";
                 ];
                 rmlc:parent [
-                    rmlc:function "lower(substr({nombre},1,1) || {apellido})";
+                    rmlc:functions "lower(substr({nombre},1,1) || {apellido})";
                 ];
             ];
         ];
