@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request
-import csvw
+#import csvw
 import logging
 import json
 import re
 import urlparse, os
-import csv
-import urllib2
+#import csv
+#import urllib2
 import pandas as pd
 
 
@@ -251,4 +251,4 @@ def to_camel_case(st):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5002)
