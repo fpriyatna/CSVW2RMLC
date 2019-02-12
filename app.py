@@ -5,7 +5,7 @@ import json
 import re
 import urlparse, os
 #import csv
-#import urllib2
+import urllib
 import pandas as pd
 
 
@@ -29,7 +29,11 @@ def transform():
 def transform_csvw_to_rmlc(csvw_url):
     # tg = csvw.TableGroup.from_file(csvw_url)
     # logging.info('tg : %s', tg)
-    json_data = json.loads(open(csvw_url).read())
+
+    #json_data = json.loads(open(csvw_url).read())
+    response = urllib.urlopen(csvw_url)
+    json_data = json.loads(response.read())
+
     # logging.info('json_data = \n%s', json_data)
     rmlc = ''
     rmlc = rmlc + '@prefix rr: <http://www.w3.org/ns/r2rml#>.' + '\n'
