@@ -28,7 +28,11 @@ def transform():
 
 @app.route('/csvw2rmlc', methods=['GET', 'POST'])
 def csvw2rmlc():
-    csvw_url = request.form['csvw_url']
+    if request.method == 'POST':
+        csvw_url = request.form['csvw_url']
+    else:
+        csvw_url = request.args.get('csvw_url')
+
     logging.info('csvw_url = %s', csvw_url)
     rmlc = csvw2rmlc_aux(csvw_url)
     return rmlc
