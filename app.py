@@ -14,12 +14,12 @@ logging.basicConfig(filename='csvw2rmlc.log', level=logging.DEBUG)
 
 
 @app.route('/')
-def transformer():
+def home():
     return render_template('transformer.html')
 
 
-@app.route('/result', methods=['POST', 'GET'])
-def result():
+@app.route('/transform', methods=['POST', 'GET'])
+def transform():
     if request.method == 'POST':
         csvw_url = request.form['csvw_url']
         rmlc = transform_csvw_to_rmlc(csvw_url)
