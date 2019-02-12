@@ -22,13 +22,22 @@ def home():
 def transform():
     if request.method == 'POST':
         csvw_url = request.form['csvw_url']
-        rmlc = transform_csvw_to_rmlc(csvw_url)
+        rmlc = csvw2rmlc_aux(csvw_url)
         return render_template("result.html", form_inputs=request.form, rmlc=rmlc)
 
 
-def transform_csvw_to_rmlc(csvw_url):
+@app.route('/csvw2rmlc', methods=['GET', 'POST'])
+def csvw2rmlc():
+    csvw_url = request.form['csvw_url']
+    logging.info('csvw_url = %s', csvw_url)
+    rmlc = csvw2rmlc_aux(csvw_url)
+    return rmlc
+
+
+def csvw2rmlc_aux(csvw_url):
     # tg = csvw.TableGroup.from_file(csvw_url)
     # logging.info('tg : %s', tg)
+    logging.info('csvw_url = %s', csvw_url)
 
     #json_data = json.loads(open(csvw_url).read())
     response = urllib.urlopen(csvw_url)
@@ -57,7 +66,7 @@ def transform_csvw_to_rmlc(csvw_url):
         rmlc = rmlc + triples_map + '\n'
 
     logging.info('rmlc = \n%s', rmlc)
-    print rmlc
+    # print rmlc
     return rmlc
 
 
